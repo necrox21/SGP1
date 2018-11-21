@@ -47,7 +47,17 @@ void testS()
 {
     pipe(tubes[2]);
     pipe(tubes[3]);
-
+    int cmp = 0;
+    while(processus[0]==0)
+    {
+        if(cmp!=999)
+            cmp++;
+        else
+            processus[0]==-1;
+        
+        cout<<cmp<<endl;
+        
+    }
 }
 
 void testT()
@@ -59,9 +69,8 @@ void testT()
 
 int main(int argc, char** argv) {
     Separator();
-
-    int pid1 = fork();
-    int pid2 = fork();
+    pid_t pid1 = fork();
+    pid_t pid2 = fork();
 
 
     if(pid1==0)
@@ -72,12 +81,9 @@ int main(int argc, char** argv) {
     {
     testT();
     }
-    else if (pid2!=0 && pid1!=0)
+    else if(pid2==0 && pid1==0)
     {
-        while(true)
-        {}
-    Affichage(Liste1);
-    Affichage(Liste2);
+       sleep(999999);
     }
     return 0;
 }
