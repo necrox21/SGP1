@@ -43,47 +43,53 @@ void Affichage(list<int> L)
     cout << endl;
 }
 
-void testS()
-{
-    pipe(tubes[2]);
-    pipe(tubes[3]);
-    int cmp = 0;
-    while(processus[0]==0)
-    {
-        if(cmp!=999)
-            cmp++;
-        else
-            processus[0]==-1;
-        
-        cout<<cmp<<endl;
-        
-    }
-}
-
-void testT()
-{
-    pipe(tubes[2]);
-    pipe(tubes[3]);
-   
-}
-
 int main(int argc, char** argv) {
+    pipe(tubes[0]);
+    pipe(tubes[1]);
+    pipe(tubes[2]);
+    pipe(tubes[3]);
     Separator();
-    pid_t pid1 = fork();
-    pid_t pid2 = fork();
-
-
+    pid_t pid1 = fork(); 
+    pid_t pid2;
+    
+    if(pid1!=0)
+        pid2 = fork();  
+    
     if(pid1==0)
     {
-    testS();
+        cout<<"S"<<endl;
+        int tmp = -INT_MAX;
+        for(const auto &s:Liste1)
+        {
+            if(s>tmp)
+            {
+                tmp = s;
+            }
+        }
+        cout<<tmp<<endl;
+        //write()
+        
     }
     else if(pid2==0)
     {
-    testT();
+        cout<<"T"<<endl;
+        int tmp = INT_MAX;
+        for(const auto &t:Liste1)
+        {
+            if(t<tmp)
+            {
+                tmp = t;
+            }
+        }
+        cout<<tmp<<endl;
     }
-    else if(pid2==0 && pid1==0)
-    {
-       sleep(999999);
+     else
+    {   
+        Affichage(Liste1);
+        Affichage(Liste2);
+    
+        int res;
+        read(tubes[0][0],&res,sizeof(res));
     }
     return 0;
 }
