@@ -24,7 +24,7 @@ void Affichage(list<int> L);
 
 int tubes[4][2];
 int processus[2];
-list<int> Liste = {9,5,7,5,6,2,1};
+list<int> Liste = {9,5,7,5,6,2,1,4,6,9};
 list<int> Liste1;
 list<int> Liste2;
 list<int> EchangeS;
@@ -34,7 +34,7 @@ list<int> EchangeT;
 int Separator()
 {
 
-    auto middle = next( Liste.begin(), Liste.size() / 2 +1 );
+    auto middle = next( Liste.begin(), (Liste.size()/ 2)-1);
     Liste1= list<int>( Liste.begin(), middle );
     Liste2= list<int>( middle, Liste.end() );
 }
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
             int posReal=0;
             for(const auto &s:Liste1)
             {
-                if(s>tmp)
+                if(s>=tmp)
                 {
                     tmp = s;
                     pos=posReal;
@@ -111,13 +111,14 @@ int main(int argc, char** argv) {
             int posReal=0;
             for(const auto &t:Liste2)
             {
-                if(t<tmp)
+                if(t<=tmp)
                 {
                     tmp = t;
                     pos=posReal;
                 }
                 posReal++;
             }
+            
             write(tubes[3][1],&tmp,sizeof(tmp));
             list<int>::iterator a = next(Liste2.begin(),pos);    
             Liste2.erase(a);
@@ -131,8 +132,8 @@ int main(int argc, char** argv) {
             sleep(1);
             if(EchangeT.size()>3)
             {
-                list<int>::iterator i = next(EchangeS.begin(),EchangeS.size()-1);
-                list<int>::iterator j = next(EchangeS.begin(),EchangeS.size()-3);
+                list<int>::iterator i = next(EchangeT.begin(),EchangeT.size()-1);
+                list<int>::iterator j = next(EchangeT.begin(),EchangeT.size()-3);
                 if(*i==*j)
                 {
                     processus[1]=-1;
@@ -148,9 +149,10 @@ int main(int argc, char** argv) {
     else//Pere
     {   
         Affichage(Liste1);
+                cout<<endl;
         Affichage(Liste2);
-        cout<<endl;
-        cout<<endl;
+
+        cout<<endl<<endl;
         int res;
         Liste.clear();
         for(int i = 0;i<Liste1.size();i++)
