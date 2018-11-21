@@ -20,6 +20,8 @@
 
 using namespace std;
 
+void Affichage(list<int> L);
+
 int tubes[2][2];
 int procesus[2];
 list<int> Liste = {9,6,3,7,5,4,8};
@@ -70,18 +72,21 @@ int Separator()
 
     Liste2= list<int>( middle, Liste.end() );
 
-    for (const auto &s : Liste1 ) cout << s << ' ';
-    cout << endl;
+    Affichage(Liste1);
+    Affichage(Liste2);
 
-    for (const auto &t : Liste2 ) cout << t << ' ';
-    cout << endl;
-    return 0;
+}
 
+void Affichage(list<int> L)
+{
+    for (const auto &l : L ) 
+        cout << l << ' ';
+    cout << endl;
 }
 
 int main(int argc, char** argv) {
     Separator();
-    S();
+    //S();
     //T();
     return 0;
 }
