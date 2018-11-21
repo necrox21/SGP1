@@ -28,41 +28,6 @@ list<int> Liste = {9,6,3,7,5,4,8};
 list<int> Liste1;
 list<int> Liste2;
 
-int S()
-{
-    pipe(tubes[0]);
-    int tmp=INT_MAX;
-    while(processus[0]==0)
-    {
-        for (const auto &s : Liste1)
-            if(s<tmp)
-                tmp = s;
-
-        close(tubes[0][0]);
-        write(tubes[0][1],&tmp,sizeof(tmp));
-        Liste1.remove(tmp);
-
-
-        close(tubes[1][1]);
-        read(tubes[1][0],&tmp,sizeof(tmp));
-        Liste1.push_back(tmp);
-
-
-    }
-    return 0;
-}
-
-int T()
-{
-    pipe(tubes[1]);
-    int tmp=-INT_MAX;
-    while(processus[1]==0)
-    {
-
-    }
-    return 0;
-}
-
 int Separator()
 {
 
@@ -81,43 +46,39 @@ void Affichage(list<int> L)
 void testS()
 {
     pipe(tubes[2]);
-    int tmp = INT_MAX;
-    processus[0]=0;
-    while(processus[0]==0)
-    {
-        for(const auto &s : Liste1)
-        {
-            if(s<tmp)
-                tmp = s;
-        }
-        
-        close(tubes[2][0]);
-        write(tubes[2][1],&tmp,sizeof(tmp));
-        Liste1.remove(tmp);
-        tmp = atoi("null");
-        while(tmp == atoi("null"))
-        {
-            close(tubes[2][1]);
-            read(tubes[2][0],&tmp,sizeof(tmp));
-            cout<<"S: "<<tmp<<endl;
-        }
-        Liste1.push_back(tmp);
-        
-    }
+    pipe(tubes[3]);
+
 }
 
 void testT()
 {
+    pipe(tubes[2]);
     pipe(tubes[3]);
-    int tmp = -INT_MAX;
-    
+   
 }
 
 int main(int argc, char** argv) {
     Separator();
+
+    int pid1 = fork();
+    int pid2 = fork();
+
+
+    if(pid1==0)
+    {
+    testS();
+    }
+    else if(pid2==0)
+    {
+    testT();
+    }
+    else if (pid2!=0 && pid1!=0)
+    {
+        while(true)
+        {}
     Affichage(Liste1);
     Affichage(Liste2);
-    testS();
+    }
     return 0;
 }
 
