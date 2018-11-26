@@ -21,22 +21,11 @@
 #include <algorithm>
 
 using namespace std;
-
-int tubes[2][2];
-int procesus[2];
 vector<int> tab{1,8,6,9,8,6,2,4,9};
 vector<int> tabS;
 vector<int> tabT;
 
-int S()
-{
-    return 0;
-}
 
-int T()
-{
-    return 0;
-}
 
 int Separator()
 {
