@@ -17,18 +17,18 @@
 #include <unistd.h>
 #include <list>
 #include <limits.h>
+#include <vector>
 
 using namespace std;
 
 int tubes[2][2];
 int procesus[2];
-list<int> Liste = {9,6,3,7,5,4,8};
-list<int> Liste1;
-list<int> Liste2;
+vector<int> tab{1,8,6,9,8,6,2,4,9};
+vector<int> tabS;
+vector<int> tabT;
 
 int S()
 {
-
     return 0;
 }
 
@@ -39,23 +39,35 @@ int T()
 
 int Separator()
 {
-
-    auto middle = next( Liste.begin(), Liste.size() / 2 +1 );
-
-    Liste1= list<int>( Liste.begin(), middle );
-
-    Liste2= list<int>( middle, Liste.end() );
-
-    for (const auto &s : Liste1 ) cout << s << ' ';
-    cout << endl;
-
-    for (const auto &t : Liste2 ) cout << t << ' ';
-    cout << endl;
+    int size = tab.size()/2+tab.size()%2;
+    int i = 0;
+    for(auto &r : tab)
+    {
+        if(i<size)
+        {
+            tabS.push_back(r);
+        }
+        else
+            tabT.push_back(r);
+        
+        i++;
+    }
     return 0;
 
 }
 
+void Affichage(vector<int> res)
+{
+    for(auto &r : res)
+    {
+        cout<<r<<" ";
+    }
+    cout<<endl;
+}
 int main(int argc, char** argv) {
+    Affichage(tab);
+    Separator();
     return 0;
 }
+
 
