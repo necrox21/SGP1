@@ -28,36 +28,12 @@ list<int> Liste2;
 
 int S()
 {
-    pipe(tubes[0]);
-    int tmp=INT_MAX;
-    while(procesus[0]==0)
-    {
-        for (const auto &s : Liste1)
-            if(s<tmp)
-                tmp = s;
 
-        close(tubes[0][0]);
-        write(tubes[0][1],&tmp,sizeof(tmp));
-        Liste1.remove(tmp);
-
-
-        close(tubes[1][1]);
-        read(tubes[1][0],&tmp,sizeof(tmp));
-        Liste1.push_back(tmp);
-
-
-    }
     return 0;
 }
 
 int T()
 {
-    pipe(tubes[1]);
-    int tmp=-INT_MAX;
-    while(procesus[1]==0)
-    {
-
-    }
     return 0;
 }
 
@@ -80,9 +56,6 @@ int Separator()
 }
 
 int main(int argc, char** argv) {
-    Separator();
-    S();
-    //T();
     return 0;
 }
 
