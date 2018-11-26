@@ -21,24 +21,22 @@
 #include <algorithm>
 
 using namespace std;
-vector<int> tab{1,8,6,9,8,6,2,4,9};
-vector<int> tabS;
-vector<int> tabT;
 
 
 
-int Separator()
+
+int Separator(vector<int> *tab,vector<int> *tabS,vector<int> *tabT)
 {
-    int size = tab.size()/2+tab.size()%2;
+    int size = tab->size()/2+tab->size()%2;
     int i = 0;
-    for(auto &r : tab)
+    for(auto &r : *tab)
     {
         if(i<size)
         {
-            tabS.push_back(r);
+            tabS->push_back(r);
         }
         else
-            tabT.push_back(r);
+            tabT->push_back(r);
         
         i++;
     }
@@ -46,8 +44,16 @@ int Separator()
 
 }
 
+int Union(vector<int> *tab,vector<int> *tabS,vector<int> *tabT)
+{
+    tab->clear();
+    tab->insert(tab->end(),tabS->begin(),tabS->end());
+    tab->insert(tab->end(),tabT->begin(),tabT->end());
+    return 0;
+}
 
-int PosMax()
+
+int PosMax(vector<int> tabS)
 {
     int pos=-1;
     int tmp = -INT_MAX;
@@ -64,7 +70,7 @@ int PosMax()
     return pos;
 }
 
-int PosMin()
+int PosMin(vector<int> tabT)
 {
     int pos=-1;
     int tmp = INT_MAX;
@@ -82,7 +88,7 @@ int PosMin()
 }
 
 
-void TesMoche()
+void TesMoche(vector<int> *tabS,vector<int> *tabT)
 {
     bool arrete = false;
     int tmpS=-1;
@@ -94,19 +100,19 @@ void TesMoche()
     
     while(!arrete)
     {
-        posS = PosMax();
-        posT = PosMin();
+        posS = PosMax(*tabS);
+        posT = PosMin(*tabT);
         
-        tmpS = tabT[PosMin()];
-        tmpT = tabS[PosMax()];
-        tabS.erase(tabS.begin()+posS);
+        tmpS = tabT->at(posT);
+        tmpT = tabS->at(posS);
+        tabS->erase(tabS->begin()+posS);
         cout<<"S envoi :"<<tmpT<<endl;
         echangeS.push_back(tmpS);
-        tabT.erase(tabT.begin()+posT);
+        tabT->erase(tabT->begin()+posT);
         cout<<"T envoi :"<<tmpS<<endl;
         echangeT.push_back(tmpT);
-        tabS.push_back(tmpS);
-        tabT.push_back(tmpT);
+        tabS->push_back(tmpS);
+        tabT->push_back(tmpT);
         cout<<endl;
         if(echangeS.size()>2&&echangeT.size()>2)
         {
@@ -124,17 +130,22 @@ void Affichage(vector<int> res)
     {
         cout<<r<<" ";
     }
-    cout<<endl;
+    cout<<endl<<endl;
 }
 int main(int argc, char** argv) {
-    Affichage(tab);
-    Separator();
-     Affichage(tabS);
-    Affichage(tabT);
-    cout<<endl;
-    TesMoche();
-    Affichage(tabS);
-    Affichage(tabT);
+    vector<int> *tab= new vector<int>();
+    tab->insert(tab->end(),{1,8,6,9,8,6,2,4,9});
+    vector<int> *tabS = new vector<int>();
+    vector<int> *tabT = new vector<int>();
+    Affichage(*tab);
+    Separator(tab,tabS,tabT);
+    Affichage(*tabS);
+    Affichage(*tabT);
+    TesMoche(tabS,tabT);
+    Affichage(*tabS);
+    Affichage(*tabT);
+    Union(tab,tabS,tabT);
+    Affichage(*tab);
     return 0;
 }
 
