@@ -153,41 +153,6 @@ int T(vector<int> *tabT,int tubes[][2])
     }
     return -1;
 }
-/*
-int TesMoche(vector<int> *tabS,vector<int> *tabT)
-{
-    int tmpS=-1;
-    int tmpT=-1;
-    int posS;
-    int posT;
-    vector<int> echangeS;
-    vector<int> echangeT;
-    
-    while(true)
-    {
-        posS = PosMax(*tabS);
-        posT = PosMin(*tabT);
-        
-        tmpS = tabT->at(posT);
-        tmpT = tabS->at(posS);
-        tabS->erase(tabS->begin()+posS);
-        cout<<"S envoi :"<<tmpT<<endl;
-        echangeS.push_back(tmpS);
-        tabT->erase(tabT->begin()+posT);
-        cout<<"T envoi :"<<tmpS<<endl;
-        echangeT.push_back(tmpT);
-        tabS->push_back(tmpS);
-        tabT->push_back(tmpT);
-        cout<<endl;
-        if(echangeS.size()>2&&echangeT.size()>2)
-        {
-           if(echangeS[echangeS.size()-1]==echangeS[echangeS.size()-3]&&echangeT[echangeT.size()-1]==echangeT[echangeT.size()-3])
-               return 0;
-        }
-    }
-    
-}*/
-
 
 void Affichage(vector<int> res)
 {
