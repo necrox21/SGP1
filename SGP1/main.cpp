@@ -107,11 +107,7 @@ int S(vector<int> *tabS,int tubes[][2])
            {   
                int final = tabS->size();
                write(tubes[0][1],&final,sizeof(int));
-               for(int i=0;i<tabS->size();i++)
-               {
-                   final = tabS->at(i);
-                   write(tubes[0][1],&final,sizeof(int));
-               }
+               write(tubes[0][1],&tabS,sizeof(int)*tabS->size());
                return 0;
            }
         }
@@ -142,11 +138,7 @@ int T(vector<int> *tabT,int tubes[][2])
            {
                int final = tabT->size();
                write(tubes[1][1],&final,sizeof(int));
-               for(int i=0;i<tabT->size();i++)
-               {
-                   final = tabT->at(i);
-                   write(tubes[1][1],&final,sizeof(int));
-               }
+               write(tubes[1][1],&tabT,sizeof(int)*tabT->size());
                return 0;
            }
         }
@@ -177,8 +169,8 @@ int main(int argc, char** argv) {
     pipe(tubes[3]);
     int size1;
     int size2;
-    int lecture1;
-    int lecture2;
+    vector<int> *lecture1;
+    vector<int> *lecture2;
     
     Affichage(*tab);
     Separator(tab,tabS,tabT);
@@ -190,45 +182,28 @@ int main(int argc, char** argv) {
     
     if(pidS != 0)
          pidT = fork();
-    
-    
-    /*TesMoche(tabS,tabT);*/
-    
+        
     if(pidS == 0)
     {
-        //Affichage(*tabS);
         S(tabS,tubes);
     }
     else if (pidT == 0)
     {
-        //Affichage(*tabT);
         T(tabT,tubes);
     }
     else
     {
-       /* Union(tab,tabS,tabT);
-        Affichage(*tab);*/
-
         read(tubes[0][0],&size1,sizeof(int));
-
         read(tubes[1][0],&size2,sizeof(int));
-
-        tabS->clear();
-
-        for(int i = 0;i<size1-1;i++)
-        {
-            read(tubes[0][0],&lecture1,sizeof(int));
-            tabS->push_back(lecture1);
-        }
-                tabT->clear();
-        for(int i = 0;i<size2-1;i++)
-        {
-            read(tubes[1][0],&lecture2,sizeof(int));
-            tabT->push_back(lecture2);
-        }
-
-        Union(tab,tabS,tabT);
+        read(tubes[0][0],&lecture1,sizeof(int)*size1);
+        read(tubes[1][0],&lecture2,sizeof(int)*size2);
+        Affichage(*lecture1);
+        Affichage(*lecture2);
+        //Union(tab,lecture1,lecture2);
+        cout<<"===Tableau final==="<<endl;
         Affichage(*tab);
+        //tab->erase(tab->begin()+1);
+        // Affichage(*tab);
     }
     return 0;
 }
