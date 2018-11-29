@@ -215,13 +215,13 @@ int main(int argc, char** argv) {
 
         tabS->clear();
 
-        for(int i = 0;i<size1-1;i++)
+        for(int i = 0;i<size1;i++)
         {
             read(tubes[0][0],&lecture1,sizeof(int));
             tabS->push_back(lecture1);
         }
                 tabT->clear();
-        for(int i = 0;i<size2-1;i++)
+        for(int i = 0;i<size2;i++)
         {
             read(tubes[1][0],&lecture2,sizeof(int));
             tabT->push_back(lecture2);
