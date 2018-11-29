@@ -19,7 +19,7 @@
 #include <limits.h>
 #include <vector>
 #include <algorithm>
-
+#include <wait.h>
 using namespace std;
 
 
@@ -94,64 +94,37 @@ void Affichage(vector<int> res)
     cout<<endl<<endl;
 }
 
-
-int test(vector<int> tab,int tubes[][2])
-{
-    cout<<tab.at(0)<<endl;
-    tab.erase(tab.begin());
-    int fin = tab.size();
-    write(tubes[0][1],&fin,sizeof(int));
-    for(int i = 0;i<fin;i++)
+int testrec(vector<int> *tab,int ppid,vector<int> *test)
+{ 
+    int status;
+    if(tab->size()>1)
     {
-        int envoi = tab.at(i);
-        cout<<envoi<<endl<<endl;
-        write(tubes[0][1],&envoi,sizeof(int));
+        pid_t pid = fork();
+
+        if(pid == 0)
+        {
+            
+            tab->erase(tab->begin());
+            testrec(tab,ppid,test);           
+        }
+        else 
+        {   
+            
+            waitpid(pid,&status,0);
+            if(getpid()==ppid)
+                Affichage(*tab);
+        }
     }
+    
     
 }
 
-
 int main(int argc, char** argv) {
     vector<int> tab;
-    tab.insert(tab.end(),{1,8,6,9,8,6,2,4,9});
-    
-    vector<int> tabS;
-    vector<int> tabT;
-    vector<int> resS;
-    vector<int> resT;
-    int tubes[4][2];
-    pipe(tubes[0]);
-    pipe(tubes[1]);
-    pipe(tubes[2]);
-    pipe(tubes[3]);
-    int size1;
-    int size2;
-    int lecture1;
-    
-    Affichage(tab);
-    Separator(&tab,&tabS,&tabT);
-    Affichage(tabS);
-    Affichage(tabT);
-    
-    pid_t pid = fork();
-   
-    if(pid == 0)
-    {
-        test(tab,tubes);
-    }
-    else 
-    {
-        tab.clear();
-        read(tubes[0][0],&size1,sizeof(int));
-        
-        for(int i=0;i<size1;i++)
-        {
-            read(tubes[0][0],&lecture1,sizeof(tab));
-            tab.push_back(lecture1);
-        }
-        //cout<<tab.at(0);
-        //Affichage(tab);
-    }
+    vector<int> test;
+    tab.insert(tab.end(),{1,8,6,9,8,6,2,4,9}); 
+    int a = getpid();
+    testrec(&tab,a,&test);
     return 0;
 }
 
