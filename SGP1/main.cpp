@@ -164,11 +164,11 @@ int T(vector<int> *tabT,int tubes[][2])
 }
 
 int main(int argc, char** argv) {
-    vector<int> *tab= new vector<int>();
-    tab->insert(tab->end(),{1,8,6,9,8,6,2,4,9});
+    vector<int> tab;
+    tab.insert(tab.end(),{1,8,6,9,8,6,2,4,9});
     
-    vector<int> *tabS = new vector<int>();
-    vector<int> *tabT = new vector<int>();
+    vector<int> tabS;
+    vector<int> tabT;
     vector<int> resS;
     vector<int> resT;
     int tubes[4][2];
@@ -181,10 +181,10 @@ int main(int argc, char** argv) {
     int lecture1;
     int lecture2;
     
-    Affichage(*tab);
-    Separator(tab,tabS,tabT);
-    Affichage(*tabS);
-    Affichage(*tabT);
+    Affichage(tab);
+    Separator(&tab,&tabS,&tabT);
+    Affichage(tabS);
+    Affichage(tabT);
     
     pid_t pidS = fork();
     pid_t pidT =-1;
@@ -192,44 +192,38 @@ int main(int argc, char** argv) {
     if(pidS != 0)
          pidT = fork();
     
-    
-    /*TesMoche(tabS,tabT);*/
-    
+        
     if(pidS == 0)
     {
-        //Affichage(*tabS);
-        S(tabS,tubes);
+        S(&tabS,tubes);
     }
     else if (pidT == 0)
     {
-        //Affichage(*tabT);
-        T(tabT,tubes);
+        T(&tabT,tubes);
     }
     else
     {
-       /* Union(tab,tabS,tabT);
-        Affichage(*tab);*/
 
         read(tubes[0][0],&size1,sizeof(int));
 
         read(tubes[1][0],&size2,sizeof(int));
 
-        tabS->clear();
+        tabS.clear();
 
         for(int i = 0;i<size1;i++)
         {
             read(tubes[0][0],&lecture1,sizeof(int));
-            tabS->push_back(lecture1);
+            tabS.push_back(lecture1);
         }
-                tabT->clear();
+                tabT.clear();
         for(int i = 0;i<size2;i++)
         {
             read(tubes[1][0],&lecture2,sizeof(int));
-            tabT->push_back(lecture2);
+            tabT.push_back(lecture2);
         }
 
-        Union(tab,tabS,tabT);
-        Affichage(*tab);
+        Union(&tab,&tabS,&tabT);
+        Affichage(tab);
     }
     return 0;
 }
