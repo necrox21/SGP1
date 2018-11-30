@@ -18,6 +18,10 @@
 #include <limits.h>
 #include <vector>
 #include <algorithm>
+#define TAILLE 15
+#define MIN 0
+#define MAX 100
+#define MODE 1
 
 using namespace std;
 
@@ -151,21 +155,29 @@ int Exchange(vector<int> *e,int tubeE[2],int tubeL[2],int tubeP[2],char type,str
        
         Write(envoi,tubeE);
         lecture = Read(tubeL);
-         //cout<<c<<" envoi : "<<envoi<<" et lit : "<<lecture<<"\n\n"<<flush;
+        //cout<<c<<" envoi : "<<envoi<<" et lit : "<<lecture<<"\n\n"<<flush;
         
         
         if(((type == 'T'||type == 'T')&&envoi<lecture)||((type == 'S'||type == 's')&&envoi>lecture))
         {
-            //cout<<"test"<<endl;
             e->erase(e->begin()+pos);
-            //e->insert(e->begin()+pos,lecture);
             e->push_back(lecture);
             
         }
         else
         {
-        Affichage(*e,c);
-        //Write(e,tubeP);
+            if(c == "P")
+            {
+                string res;
+                res+=type;
+                Affichage(*e,res);
+                Write(e,tubeP);
+            }
+            else
+            {
+                Affichage(*e,c);
+            }
+
         return 0;
         }
     }
@@ -227,10 +239,8 @@ int TriST(vector<int> *tab)
     pipe(tubes[2]);
     pipe(tubes[3]);
     
-    Affichage(*tab,"tab");
+    Affichage(*tab,"tabTri");
     Separator(tab,&tabS,&tabT);
-    /*Affichage(tabS,"tabS");
-    Affichage(tabT,"tabT");*/
     
     pid_t pidS = fork();
     pid_t pidT =-1;
@@ -252,16 +262,69 @@ int TriST(vector<int> *tab)
         Read(&tabS,tubes[0]);
         Read(&tabT,tubes[1]);        
         Union(tab,&tabS,&tabT);
-        Affichage(*tab,"tab");
+        Affichage(*tab,"tabTriee");
     }
 }
 
-int main(int argc, char** argv) {
-    vector<int> tab;
-    tab.insert(tab.end(),{8,7,1,4,8,2,15,27,52,8,8});
+int Partition(vector<int> *tab)
+{
+        vector<int> tabS;
+    vector<int> tabT;
+    int tubes[4][2];
+    pipe(tubes[0]);
+    pipe(tubes[1]);
+    pipe(tubes[2]);
+    pipe(tubes[3]);
     
-    TriST(&tab);
+    Affichage(*tab,"tabPartition");
+    Separator(tab,&tabS,&tabT);
+    
+    pid_t pidS = fork();
+    pid_t pidT =-1;
+    
+    if(pidS != 0)
+         pidT = fork();
+    
+        
+    if(pidS == 0)
+    {
+        Exchange(&tabS,tubes[2],tubes[3],tubes[0],'S',"P");
+    }
+    else if (pidT == 0)
+    {
+        Exchange(&tabT,tubes[3],tubes[2],tubes[1],'T',"P");
+    }
+    else
+    {
+        Read(&tabS,tubes[0]);
+        Read(&tabT,tubes[1]);        
+        Union(tab,&tabS,&tabT);
+        Affichage(*tab,"tabPartitione");
+    }
+}
 
+int Aleatoire(int min, int max)
+{
+ 
+    return rand()%(max-min+1) + min;
+}
+
+int main(int argc, char** argv) {
+    srand(time(NULL));
+    vector<int> tab;
+    if(TAILLE>=2)
+    {
+        int taille = Aleatoire(2,TAILLE);
+        for(int i = 0 ; i < taille ; i++)
+        {
+            int a = Aleatoire(MIN,MAX);
+            tab.insert(tab.end(),a);
+        }
+        if(MODE!=0)
+            TriST(&tab);
+        else
+        Partition(&tab);
+    }
     return 0;
 }
 
