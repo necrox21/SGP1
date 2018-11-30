@@ -15,41 +15,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <list>
 #include <limits.h>
 #include <vector>
 #include <algorithm>
+#define TAILLE 500
+#define MIN 0
+#define MAX 100
+#define MODE 1
 
 using namespace std;
 
-int tubes[2][2];
-int procesus[2];
-vector<int> tab{1,8,6,9,8,6,2,4,9};
-vector<int> tabS;
-vector<int> tabT;
-
-int S()
+int Separator(vector<int> *tab,vector<int> *tabS,vector<int> *tabT)
 {
-    return 0;
-}
-
-int T()
-{
-    return 0;
-}
-
-int Separator()
-{
-    int size = tab.size()/2+tab.size()%2;
+    int size = tab->size()/2+tab->size()%2;
     int i = 0;
-    for(auto &r : tab)
+    for(auto &r : *tab)
     {
         if(i<size)
         {
-            tabS.push_back(r);
+            tabS->push_back(r);
         }
         else
-            tabT.push_back(r);
+            tabT->push_back(r);
         
         i++;
     }
@@ -57,8 +44,16 @@ int Separator()
 
 }
 
+int Union(vector<int> *tab,vector<int> *tabS,vector<int> *tabT)
+{
+    tab->clear();
+    tab->insert(tab->end(),tabS->begin(),tabS->end());
+    tab->insert(tab->end(),tabT->begin(),tabT->end());
+    return 0;
+}
 
-int PosMax()
+
+int PosMax(vector<int> tabS)
 {
     int pos=-1;
     int tmp = -INT_MAX;
@@ -75,7 +70,7 @@ int PosMax()
     return pos;
 }
 
-int PosMin()
+int PosMin(vector<int> tabT)
 {
     int pos=-1;
     int tmp = INT_MAX;
@@ -92,60 +87,245 @@ int PosMin()
     return pos;
 }
 
-
-void TesMoche()
+void Affichage(vector<int> res,string name)
 {
-    bool arrete = false;
-    int tmpS=-1;
-    int tmpT=-1;
-    int posS;
-    int posT;
-    vector<int> echangeS;
-    vector<int> echangeT;
-    
-    while(!arrete)
+    cout<<name<<" : [";
+    for(auto &r : res)
     {
-        posS = PosMax();
-        posT = PosMin();
-        
-        tmpS = tabT[PosMin()];
-        tmpT = tabS[PosMax()];
-        tabS.erase(tabS.begin()+posS);
-        cout<<"S envoi :"<<tmpT<<endl;
-        echangeS.push_back(tmpS);
-        tabT.erase(tabT.begin()+posT);
-        cout<<"T envoi :"<<tmpS<<endl;
-        echangeT.push_back(tmpT);
-        tabS.push_back(tmpS);
-        tabT.push_back(tmpT);
-        cout<<endl;
-        if(echangeS.size()>2&&echangeT.size()>2)
+        cout<<" "<<r<<" ";
+    }
+    cout<<"]\n\n"<<flush;
+}
+
+void Write(int mes,int tubes[2])
+{
+    close(tubes[0]);
+    write(tubes[1],&mes,sizeof(mes));
+}
+
+void Write(vector<int> *mes,int tubes[2])
+{
+    int fin = mes->size();
+    Write(fin,tubes);
+    for(int i=0;i<mes->size();i++)
+    {
+        fin = mes->at(i);
+        Write(fin,tubes);
+    }
+}
+
+int Read(int tubes[2])
+{
+    int res;
+    close(tubes[1]);
+    read(tubes[0],&res,sizeof(res));
+    return res;
+}
+
+void Read(vector<int> *res,int tubes[2])
+{
+    int taille = Read(tubes);
+    res->clear();
+    for(int i=0;i<taille;i++)
+    {
+        int val = Read(tubes);
+        res->push_back(val);
+    }
+}
+
+int Exchange(vector<int> *e,int tubeE[2],int tubeL[2],int tubeP[2],char type,string c)
+{
+    int envoi = -1;
+    int lecture = -1;
+    int pos;
+    while(true)
+    {
+        if(type == 'S'||type == 's')
         {
-           if(echangeS[echangeS.size()-1]==echangeS[echangeS.size()-3]&&echangeT[echangeT.size()-1]==echangeT[echangeT.size()-3])
-            arrete=true;
+            pos = PosMax(*e);
+        }
+        else if(type == 'T'||type == 't')
+        {
+            pos = PosMin(*e);
+        }
+        else
+        {
+            return -1;
+        }
+        
+        envoi = e->at(pos);
+       
+        Write(envoi,tubeE);
+        lecture = Read(tubeL);
+        //cout<<c<<" envoi : "<<envoi<<" et lit : "<<lecture<<"\n\n"<<flush;
+        
+        
+        if(((type == 'T'||type == 'T')&&envoi<lecture)||((type == 'S'||type == 's')&&envoi>lecture))
+        {
+            e->erase(e->begin()+pos);
+            e->push_back(lecture);
+            
+        }
+        else
+        {
+            if(c == "P")
+            {
+                string res;
+                res+=type;
+                Affichage(*e,res);
+                Write(e,tubeP);
+            }
+            else
+            {
+                Affichage(*e,c);
+            }
+
+        return 0;
+        }
+    }
+    return -1;
+}
+
+int TriST(vector<int> *tab,int tubeE[2],int tubeL[2],int tubeP[2],char type,string recu)
+{
+    vector<int> tabS;
+    vector<int> tabT;
+    Exchange(tab,tubeE,tubeL,tubeP,type,recu);
+    if(tab->size()==1)
+    {
+        Write(tab,tubeP);
+    }
+    else
+    {
+        
+        Separator(tab,&tabS,&tabT);
+        int tubes[4][2];
+        pipe(tubes[0]);
+        pipe(tubes[1]);
+        pipe(tubes[2]);
+        pipe(tubes[3]);
+        
+        pid_t pidS = fork();
+        pid_t pidT =-1;
+
+        if(pidS != 0)
+             pidT = fork();
+                
+        if(pidS == 0)
+        {
+            TriST(&tabS,tubes[2],tubes[3],tubes[0],'S',recu+'S');
+        }
+        else if (pidT == 0)
+        {
+            TriST(&tabT,tubes[3],tubes[2],tubes[1],'T',recu+'T');
+        }
+        else
+        {
+            Read(&tabS,tubes[0]);
+            Read(&tabT,tubes[1]);    
+            Union(tab,&tabS,&tabT);
+            Write(tab,tubeP);
         }
     }
     
+    return -1;
 }
 
-
-void Affichage(vector<int> res)
+int TriST(vector<int> *tab)
 {
-    for(auto &r : res)
+    vector<int> tabS;
+    vector<int> tabT;
+    int tubes[4][2];
+    pipe(tubes[0]);
+    pipe(tubes[1]);
+    pipe(tubes[2]);
+    pipe(tubes[3]);
+    
+    Affichage(*tab,"tabTri");
+    Separator(tab,&tabS,&tabT);
+    
+    pid_t pidS = fork();
+    pid_t pidT =-1;
+    
+    if(pidS != 0)
+         pidT = fork();
+    
+        
+    if(pidS == 0)
     {
-        cout<<r<<" ";
+        TriST(&tabS,tubes[2],tubes[3],tubes[0],'S',"S");
     }
-    cout<<endl;
+    else if (pidT == 0)
+    {
+        TriST(&tabT,tubes[3],tubes[2],tubes[1],'T',"T");
+    }
+    else
+    {
+        Read(&tabS,tubes[0]);
+        Read(&tabT,tubes[1]);        
+        Union(tab,&tabS,&tabT);
+        Affichage(*tab,"tabTriee");
+    }
 }
+
+int Partition(vector<int> *tab)
+{
+        vector<int> tabS;
+    vector<int> tabT;
+    int tubes[4][2];
+    pipe(tubes[0]);
+    pipe(tubes[1]);
+    pipe(tubes[2]);
+    pipe(tubes[3]);
+    
+    Affichage(*tab,"tabPartition");
+    Separator(tab,&tabS,&tabT);
+    
+    pid_t pidS = fork();
+    pid_t pidT =-1;
+    
+    if(pidS != 0)
+         pidT = fork();
+    
+        
+    if(pidS == 0)
+    {
+        Exchange(&tabS,tubes[2],tubes[3],tubes[0],'S',"P");
+    }
+    else if (pidT == 0)
+    {
+        Exchange(&tabT,tubes[3],tubes[2],tubes[1],'T',"P");
+    }
+    else
+    {
+        Read(&tabS,tubes[0]);
+        Read(&tabT,tubes[1]);        
+        Union(tab,&tabS,&tabT);
+        Affichage(*tab,"tabPartitione");
+    }
+}
+
+int Aleatoire(int min, int max)
+{
+ 
+    return rand()%(max-min+1) + min;
+}
+
 int main(int argc, char** argv) {
-    Affichage(tab);
-    Separator();
-     Affichage(tabS);
-    Affichage(tabT);
-    cout<<endl;
-    TesMoche();
-    Affichage(tabS);
-    Affichage(tabT);
+    srand(time(NULL));
+    vector<int> tab;
+    if(TAILLE>=2)
+    {
+        for(int i = 0 ; i < TAILLE ; i++)
+        {
+            int a = Aleatoire(MIN,MAX);
+            tab.insert(tab.end(),a);
+        }
+        if(MODE!=0)
+            TriST(&tab);
+        else
+        Partition(&tab);
+    }
     return 0;
 }
 
