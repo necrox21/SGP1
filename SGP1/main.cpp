@@ -18,7 +18,7 @@
 #include <limits.h>
 #include <vector>
 #include <algorithm>
-#define TAILLE 10000
+#define TAILLE 500
 #define MIN 0
 #define MAX 100
 #define MODE 1
@@ -99,6 +99,7 @@ void Affichage(vector<int> res,string name)
 
 void Write(int mes,int tubes[2])
 {
+    close(tubes[0]);
     write(tubes[1],&mes,sizeof(mes));
 }
 
@@ -116,6 +117,7 @@ void Write(vector<int> *mes,int tubes[2])
 int Read(int tubes[2])
 {
     int res;
+    close(tubes[1]);
     read(tubes[0],&res,sizeof(res));
     return res;
 }
