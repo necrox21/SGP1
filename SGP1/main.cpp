@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <list>
 #include <limits.h>
 #include <vector>
 #include <algorithm>
@@ -84,13 +83,14 @@ int PosMin(vector<int> tabT)
     return pos;
 }
 
-void Affichage(vector<int> res)
+void Affichage(vector<int> res,string name)
 {
+    cout<<name<<" : [";
     for(auto &r : res)
     {
-        cout<<r<<" ";
+        cout<<" "<<r<<" ";
     }
-    cout<<endl<<endl;
+    cout<<"]\n\n"<<flush;
 }
 
 void Write(int mes,int tubes[2])
@@ -127,7 +127,7 @@ void Read(vector<int> *res,int tubes[2])
     }
 }
 
-int Exchange(vector<int> *e,int tubesE[2],int tubesL[2],int tubesP[2],char type)
+int Exchange(vector<int> *e,int tubeE[2],int tubeL[2],int tubeP[2],char type)
 {
     int envoi = -1;
     int lecture = -1;
@@ -151,17 +151,16 @@ int Exchange(vector<int> *e,int tubesE[2],int tubesL[2],int tubesP[2],char type)
         
         envoi = e->at(pos);
         e->erase(e->begin()+pos);
-        Write(envoi,tubesE);
-        printf("%c envoi : %d\n",type,envoi);
+        Write(envoi,tubeE);
         echange.push_back(envoi);
-        lecture = Read(tubesL);
-        printf("%c lit : %d\n",type,lecture);
+        lecture = Read(tubeL);
+        cout<<type<<" envoi : "<<envoi<<" et lit : "<<lecture<<"\n\n"<<flush;
         e->push_back(lecture);
         if(echange.size()>2)
         {
             if(echange[echange.size()-1]==echange[echange.size()-3])
             {
-                Write(e,tubesP);
+                Write(e,tubeP);
                 return 0;
             }
         }
@@ -169,28 +168,20 @@ int Exchange(vector<int> *e,int tubesE[2],int tubesL[2],int tubesP[2],char type)
     return -1;
 }
 
-int main(int argc, char** argv) {
-    vector<int> tab;
-    tab.insert(tab.end(),{1,8,6,9,8,6,2,4,9});
-    
-    vector<int> tabS;
+int TriST(vector<int> *tab)
+{
+        vector<int> tabS;
     vector<int> tabT;
-    vector<int> resS;
-    vector<int> resT;
     int tubes[4][2];
     pipe(tubes[0]);
     pipe(tubes[1]);
     pipe(tubes[2]);
     pipe(tubes[3]);
-    int size1;
-    int size2;
-    int lecture1;
-    int lecture2;
     
-    Affichage(tab);
-    Separator(&tab,&tabS,&tabT);
-    Affichage(tabS);
-    Affichage(tabT);
+    Affichage(*tab,"tab");
+    Separator(tab,&tabS,&tabT);
+    Affichage(tabS,"tabS");
+    Affichage(tabT,"tabT");
     
     pid_t pidS = fork();
     pid_t pidT =-1;
@@ -209,12 +200,63 @@ int main(int argc, char** argv) {
     }
     else
     {
-
         Read(&tabS,tubes[0]);
-        Read(&tabT,tubes[1]);
-        Union(&tab,&tabS,&tabT);
-        Affichage(tab);
+        Read(&tabT,tubes[1]);        
+        Union(tab,&tabS,&tabT);
+        Affichage(*tab,"tab");
     }
+}
+
+int TriST(vector<int> *tab,int tubeE[2],int tubeL[2],int tubeP[2],char type)
+{
+    vector<int> tabS;
+    vector<int> tabT;
+    Exchange(tab,tubeE,tubeL,tubeP,type);
+    if(tab->size()==1)
+    {
+        Write(tab,tubeP);
+    }
+    else
+    {
+        Separator(tab,&tabS,&tabT);
+        int tubes[4][2];
+        pipe(tubes[0]);
+        pipe(tubes[1]);
+        pipe(tubes[2]);
+        pipe(tubes[3]);
+        
+        pid_t pidS = fork();
+        pid_t pidT =-1;
+
+        if(pidS != 0)
+             pidT = fork();
+                
+        if(pidS == 0)
+        {
+            TriST(&tabS,tubes[2],tubes[3],tubes[0],'S');
+        }
+        else if (pidT == 0)
+        {
+            TriST(&tabT,tubes[3],tubes[2],tubes[1],'T');
+        }
+        else
+        {
+            Read(&tabS,tubes[0]);
+            Read(&tabT,tubes[1]);        
+            Union(tab,&tabS,&tabT);
+            Write(tab,tubeP);
+        }
+    }
+    
+    return -1;
+}
+
+int main(int argc, char** argv) {
+    vector<int> tab;
+    tab.insert(tab.end(),{1,8,6,9,8,6,2,4,9});
+    
+    TriST(&tab);
+
     return 0;
 }
 
