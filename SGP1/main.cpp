@@ -18,7 +18,7 @@
 #include <limits.h>
 #include <vector>
 #include <algorithm>
-#define TAILLE 15
+#define TAILLE 10000
 #define MIN 0
 #define MAX 100
 #define MODE 1
@@ -314,8 +314,7 @@ int main(int argc, char** argv) {
     vector<int> tab;
     if(TAILLE>=2)
     {
-        int taille = Aleatoire(2,TAILLE);
-        for(int i = 0 ; i < taille ; i++)
+        for(int i = 0 ; i < TAILLE ; i++)
         {
             int a = Aleatoire(MIN,MAX);
             tab.insert(tab.end(),a);
