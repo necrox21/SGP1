@@ -93,71 +93,77 @@ void Affichage(vector<int> res)
     cout<<endl<<endl;
 }
 
-int S(vector<int> *tabS,int tubes[][2])
+void Write(int mes,int tubes[2])
 {
-    int envoi = -1;
-    int lecture = -1;
-    int posS;
-    vector<int> echangeS;
-    while(true)
-    {
-        posS = PosMax(*tabS);
-        envoi = tabS->at(posS);
-        tabS->erase(tabS->begin()+posS);
-        write(tubes[2][1],&envoi,sizeof(int));
-        cout<<"S envoi :"<<envoi<<endl;
-        echangeS.push_back(envoi);
-        read(tubes[3][0],&lecture,sizeof(int));
-        cout<<"S lit :"<<lecture<<endl;
-        tabS->push_back(lecture);
-        if(echangeS.size()>2)
-        {
-           if(echangeS[echangeS.size()-1]==echangeS[echangeS.size()-3])
-           {   
-               int final = tabS->size();
-               write(tubes[0][1],&final,sizeof(int));
-               for(int i=0;i<tabS->size();i++)
-               {
-                   final = tabS->at(i);
-                   write(tubes[0][1],&final,sizeof(int));
-               }
-               return 0;
-           }
-        }
-    }
-    return -1;
+    write(tubes[1],&mes,sizeof(mes));
 }
 
-int T(vector<int> *tabT,int tubes[][2])
+void Write(vector<int> *mes,int tubes[2])
+{
+    int fin = mes->size();
+    Write(fin,tubes);
+    for(int i=0;i<mes->size();i++)
+    {
+        fin = mes->at(i);
+        Write(fin,tubes);
+    }
+}
+
+int Read(int tubes[2])
+{
+    int res;
+    read(tubes[0],&res,sizeof(res));
+    return res;
+}
+
+void Read(vector<int> *res,int tubes[2])
+{
+    int taille = Read(tubes);
+    res->clear();
+    for(int i=0;i<taille;i++)
+    {
+        int val = Read(tubes);
+        res->push_back(val);
+    }
+}
+
+int Exchange(vector<int> *e,int tubesE[2],int tubesL[2],int tubesP[2],char type)
 {
     int envoi = -1;
     int lecture = -1;
-    int posT;
-    vector<int> echangeT;
-    while(true)
+    int pos;
+    vector<int> echange;
+    bool work = true;
+    while(work)
     {
-        posT = PosMin(*tabT);
-        envoi = tabT->at(posT);
-        tabT->erase(tabT->begin()+posT);
-        write(tubes[3][1],&envoi,sizeof(int));
-        cout<<"T envoi :"<<envoi<<endl;
-        echangeT.push_back(envoi);
-        read(tubes[2][0],&lecture,sizeof(int));
-        cout<<"T lit :"<<lecture<<endl;
-        tabT->push_back(lecture);
-        if(echangeT.size()>2)
+        if(type == 'S'||type == 's')
         {
-           if(echangeT[echangeT.size()-1]==echangeT[echangeT.size()-3])
-           {
-               int final = tabT->size();
-               write(tubes[1][1],&final,sizeof(int));
-               for(int i=0;i<tabT->size();i++)
-               {
-                   final = tabT->at(i);
-                   write(tubes[1][1],&final,sizeof(int));
-               }
-               return 0;
-           }
+            pos = PosMax(*e);
+        }
+        else if(type == 'T'||type == 't')
+        {
+            pos = PosMin(*e);
+        }
+        else
+        {
+            work = false;
+        }
+        
+        envoi = e->at(pos);
+        e->erase(e->begin()+pos);
+        Write(envoi,tubesE);
+        printf("%c envoi : %d\n",type,envoi);
+        echange.push_back(envoi);
+        lecture = Read(tubesL);
+        printf("%c lit : %d\n",type,lecture);
+        e->push_back(lecture);
+        if(echange.size()>2)
+        {
+            if(echange[echange.size()-1]==echange[echange.size()-3])
+            {
+                Write(e,tubesP);
+                return 0;
+            }
         }
     }
     return -1;
@@ -195,33 +201,17 @@ int main(int argc, char** argv) {
         
     if(pidS == 0)
     {
-        S(&tabS,tubes);
+        Exchange(&tabS,tubes[2],tubes[3],tubes[0],'S');
     }
     else if (pidT == 0)
     {
-        T(&tabT,tubes);
+        Exchange(&tabT,tubes[3],tubes[2],tubes[1],'T');
     }
     else
     {
 
-        read(tubes[0][0],&size1,sizeof(int));
-
-        read(tubes[1][0],&size2,sizeof(int));
-
-        tabS.clear();
-
-        for(int i = 0;i<size1;i++)
-        {
-            read(tubes[0][0],&lecture1,sizeof(int));
-            tabS.push_back(lecture1);
-        }
-                tabT.clear();
-        for(int i = 0;i<size2;i++)
-        {
-            read(tubes[1][0],&lecture2,sizeof(int));
-            tabT.push_back(lecture2);
-        }
-
+        Read(&tabS,tubes[0]);
+        Read(&tabT,tubes[1]);
         Union(&tab,&tabS,&tabT);
         Affichage(tab);
     }
