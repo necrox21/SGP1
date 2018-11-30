@@ -168,11 +168,9 @@ int Exchange(vector<int> *e,int tubeE[2],int tubeL[2],int tubeP[2],char type,str
         }
         else
         {
-            if(c == "P")
+            if(MODE==0)
             {
-                string res;
-                res+=type;
-                Affichage(*e,res);
+                Affichage(*e,c);
                 Write(e,tubeP);
             }
             else
@@ -290,11 +288,11 @@ int Partition(vector<int> *tab)
         
     if(pidS == 0)
     {
-        Exchange(&tabS,tubes[2],tubes[3],tubes[0],'S',"P");
+        Exchange(&tabS,tubes[2],tubes[3],tubes[0],'S',"S");
     }
     else if (pidT == 0)
     {
-        Exchange(&tabT,tubes[3],tubes[2],tubes[1],'T',"P");
+        Exchange(&tabT,tubes[3],tubes[2],tubes[1],'T',"T");
     }
     else
     {
@@ -316,15 +314,24 @@ int main(int argc, char** argv) {
     vector<int> tab;
     if(TAILLE>=2)
     {
-        for(int i = 0 ; i < TAILLE ; i++)
+        if(MODE!=0)
         {
+            for(int i = 0 ; i < TAILLE ; i++)
+            {
             int a = Aleatoire(MIN,MAX);
             tab.insert(tab.end(),a);
-        }
-        if(MODE!=0)
+            }
             TriST(&tab);
+        }
         else
-        Partition(&tab);
+        {
+            for(int i = 0 ; i < 10 ; i++)
+            {
+            int a = Aleatoire(MIN,MAX);
+            tab.insert(tab.end(),a);
+            }
+            Partition(&tab);
+        }
     }
     return 0;
 }
